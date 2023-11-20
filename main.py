@@ -1,9 +1,10 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import ElementClickInterceptedException
 import time
-SIMILAR_ACCOUNT = "cats_of_instagram"
-USERNAME = "USERNAME34"
+
+SIMILAR_ACCOUNT = "ACCOUNT"
+USERNAME = "YOUR_USER_NAME"
 PASSWORD = "YOUR_PASSWORD"
 
 
@@ -11,10 +12,9 @@ class InstaFollower:
     def __init__(self):
         self.driver = webdriver.Chrome()
 
-    # by = By.XPATH, value = '//*[@id="loginForm"]/div/div[1]/div/label/input'
     def login(self):
         self.driver.get("https://www.instagram.com/accounts/login/")
-        time.sleep(5)
+        time.sleep(10)
 
         name = self.driver.find_element(by=By.XPATH, value='//*[@id="loginForm"]/div/div[1]/div/label/input')
         password = self.driver.find_element(by=By.XPATH, value='//*[@id="loginForm"]/div/div[2]/div/label/input')
@@ -24,10 +24,26 @@ class InstaFollower:
         button.click()
 
     def find_followers(self):
-        pass
+        time.sleep(5)
+        self.driver.get(f"https://www.instagram.com/{SIMILAR_ACCOUNT}/followers/")
+        time.sleep(7)
+        scroll = self.driver.find_element(by=By.CLASS_NAME, value='_aano')
+
+        for i in range(10):
+            self.driver.execute_script('arguments[0].scrollTop = arguments[0].scrollHeight', scroll)
+            time.sleep(5)
 
     def follow(self):
-        pass
+        follow_button = self.driver.find_elements(by=By.CSS_SELECTOR,
+                                                  value='._aano div div div div div div div div button')
+        # print("Number of buttons found:", len(follow_button))
+        for i in follow_button:
+            try:
+                i.click()
+                time.sleep(2)
+            except ElementClickInterceptedException:
+                annuler = self.driver.find_element(by=By.XPATH, value='/html/body/div[7]/div[1]/div/div[2]/div/div/div/div/div/div/button[2]')
+                annuler.click()
 
 
 bot = InstaFollower()
